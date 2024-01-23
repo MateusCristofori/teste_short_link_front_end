@@ -46,7 +46,10 @@
     >
       Primeira Página
     </button>
-    <div class="w-full flex justify-center items-center mt-4 max-w-6xl">
+    <div
+      v-if="this.allLinks.length !== 0"
+      class="w-full flex justify-center items-center mt-4 max-w-6xl"
+    >
       <button
         @click="previousPage"
         class="mb-2 sm:mb-0 px-2 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"
@@ -122,11 +125,11 @@ export default {
     return {
       allLinks,
       page,
+      isLastPage,
       nextPage,
       redirect,
       previousPage,
       firstPage,
-      isLastPage,
       getAllLinksFromAPI
     }
   },
