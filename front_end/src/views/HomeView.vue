@@ -28,6 +28,12 @@
                   >{{ link.hash }}
                 </a>
               </div>
+              <div class="font-medium text-indigo-600">
+                <strong>Criado em: </strong>
+              </div>
+              <div class="pl-4 text-gray-700 mb-2 overflow-x-auto">
+                {{ new Date(link.created_at).toLocaleString('pt-br') }}
+              </div>
             </li>
           </ul>
         </div>
