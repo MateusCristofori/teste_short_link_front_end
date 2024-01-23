@@ -2,7 +2,7 @@
 
 Interface feita em **Vue.Js** e **Javascript**.
 
-# Instalação e executação do projeto
+# Instalação e execução do projeto
 
 ## Dependências globais
 
