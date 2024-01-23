@@ -39,45 +39,99 @@
         </div>
       </div>
     </div>
-    <RouterLink
-      to="/form"
-      class="mt-4 px-4 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"
-      >Encurtar Link</RouterLink
+    <button
+      v-if="isLastPage"
+      @click="firstPage"
+      class="w-72 mb-2 sm:mb-0 px-2 py-2 text-white bg-green-600 rounded hover:bg-green-500"
     >
+      Primeira Página
+    </button>
+    <div class="w-full flex justify-center items-center mt-4 max-w-6xl">
+      <button
+        @click="previousPage"
+        class="mb-2 sm:mb-0 px-2 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"
+      >
+        Página anterior
+      </button>
+      <RouterLink
+        to="/form"
+        class="mb-2 sm:mb-0 mr-2 ml-2 px-2 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"
+      >
+        Encurtar Link
+      </RouterLink>
+      <button
+        @click="nextPage"
+        class="mb-2 sm:mb-0 px-2 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"
+        :disabled="isLastPage"
+      >
+        Próxima página
+      </button>
+    </div>
   </main>
 </template>
 
 <script>
 import axios from 'axios'
-import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+import { toast } from 'vue3-toastify'
+import { ref } from 'vue'
 
 export default {
   setup() {
-    toast('Seja bem-vindo(a)!');    
-  },
-  data() {
-    return {
-      allLinks: []
-    }
-  },
-  created() {
-    this.getAllLinksFromAPI()
-  },
-  methods: {
-    getAllLinksFromAPI() {
-      axios.get('http://localhost:8080/api').then((res) => {
+    const isLastPage = ref(false)
+    const allLinks = ref([])
+    const page = ref(1)
+
+    const getAllLinksFromAPI = () => {
+      axios.get(`http://localhost:8080/api?page=${page.value}`).then((res) => {
         console.log(res.data)
-        this.allLinks = res.data.data
+        if (res.data.data.length === 0) {
+          isLastPage.value = true
+          return toast.error('Não existe mais registros!')
+        }
+        allLinks.value = res.data.data
       })
-    },
-    redirect(hash) {
+    }
+
+    const redirect = (hash) => {
       event.preventDefault()
       axios.get(`http://localhost:8080/api${hash}`).then((res) => {
         console.log(res.data)
         window.open(res.data['original_url'], '_blank')
       })
     }
+    const nextPage = () => {
+      event.preventDefault()
+      page.value++
+      getAllLinksFromAPI()
+    }
+
+    const previousPage = () => {
+      event.preventDefault()
+      page.value--
+      getAllLinksFromAPI()
+    }
+
+    const firstPage = () => {
+      event.preventDefault()
+      page.value = 1
+      isLastPage.value = false
+      getAllLinksFromAPI()
+    }
+
+    return {
+      allLinks,
+      page,
+      nextPage,
+      redirect,
+      previousPage,
+      firstPage,
+      isLastPage,
+      getAllLinksFromAPI
+    }
+  },
+  mounted() {
+    this.getAllLinksFromAPI()
   }
 }
 </script>

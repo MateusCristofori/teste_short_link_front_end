@@ -14,6 +14,7 @@
         placeholder="Cole seu Link aqui"
         v-model="original_url"
         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        ref="input_original_url"
       />
       <input
         type="submit"
@@ -56,7 +57,13 @@ export default {
   methods: {
     submitLink() {
       if (this.original_url === '') {
-        return toast.error('Um link precisa ser passado!')
+        this.$refs.input_original_url.focus()
+        return toast.error('Uma URL precisa ser informada!')
+      }
+      if (!this.validarURL(this.original_url)) {
+        this.original_url = ''
+        this.$refs.input_original_url.focus()
+        return toast.error('A URL precisa ser válida')
       }
       axios
         .post('http://localhost:8080/api', {
@@ -73,6 +80,14 @@ export default {
       axios.get(`http://localhost:8080/api${this.shorted_link_value}`).then((res) => {
         window.open(res.data['original_url'], '_blank')
       })
+    },
+    validarURL(url) {
+      try {
+        new URL(url)
+        return true
+      } catch (error) {
+        return false
+      }
     }
   }
 }
