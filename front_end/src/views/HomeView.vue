@@ -49,8 +49,13 @@
 
 <script>
 import axios from 'axios'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
 export default {
+  setup() {
+    toast('Seja bem-vindo(a)!');    
+  },
   data() {
     return {
       allLinks: []
@@ -63,7 +68,7 @@ export default {
     getAllLinksFromAPI() {
       axios.get('http://localhost:8080/api').then((res) => {
         console.log(res.data)
-        this.allLinks = res.data
+        this.allLinks = res.data.data
       })
     },
     redirect(hash) {

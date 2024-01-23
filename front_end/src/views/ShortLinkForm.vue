@@ -26,6 +26,7 @@
         id="shorted_link"
         v-model="shorted_link_value"
         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        placeholder="Link Encurtado"
       />
       <button
         type="submit"
@@ -41,6 +42,8 @@
 
 <script>
 import axios from 'axios'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
 export default {
   data() {
@@ -53,21 +56,20 @@ export default {
   methods: {
     submitLink() {
       if (this.original_url === '') {
-        return {
-          msg: 'O campo de URL não pode estar vazio.'
-        }
+        return toast.error('Um link precisa ser passado!')
       }
       axios
         .post('http://localhost:8080/api', {
           original_url: this.original_url
         })
         .then((res) => {
-          console.log(res.data)
+          toast.success('Link Encurtado com sucesso')
           this.buttonIsDisabled = false
           this.shorted_link_value = res.data['shorted_link']
         })
     },
     redirect() {
+      event.preventDefault()
       axios.get(`http://localhost:8080/api${this.shorted_link_value}`).then((res) => {
         window.open(res.data['original_url'], '_blank')
       })
