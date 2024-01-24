@@ -40,7 +40,7 @@
       </div>
     </div>
     <button
-      v-if="isLastPage"
+      v-if="isLastPage && existsNextPage"
       @click="firstPage"
       class="w-72 mb-2 sm:mb-0 px-2 py-2 text-white bg-green-600 rounded hover:bg-green-500"
     >
@@ -65,7 +65,7 @@
       <button
         @click="nextPage"
         class="mb-2 sm:mb-0 px-2 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"
-        :disabled="isLastPage"
+        :disabled="isLastPage && existsNextPage"
       >
         Próxima página
       </button>
@@ -82,6 +82,7 @@ import { ref } from 'vue'
 export default {
   setup() {
     const isLastPage = ref(false)
+    const existsNextPage = null
     const allLinks = ref([])
     const page = ref(1)
 
@@ -90,7 +91,10 @@ export default {
         console.log(res.data)
         if (res.data.data.length === 0) {
           isLastPage.value = true
-          return toast.error('Não existe mais registros!')
+          return toast.error('Não existem mais registros!')
+        }
+        if (res.data.data.next_page_url) {
+          existsNextPage.value = res.data.data.next_page_url
         }
         allLinks.value = res.data.data
       })
@@ -126,6 +130,7 @@ export default {
       allLinks,
       page,
       isLastPage,
+      existsNextPage,
       nextPage,
       redirect,
       previousPage,
