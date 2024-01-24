@@ -29,7 +29,15 @@
                 </a>
               </div>
               <div class="font-medium text-indigo-600">
-                <strong>Criado em: </strong>
+                <strong>Clicks: </strong>
+              </div>
+              <div class="pl-4 text-gray-700 mb-2 overflow-x-auto">
+                <strong>
+                  <p>{{ this.clicks.length === 0 ? 0 : this.clicks[link.hash] }}</p>
+                </strong>
+              </div>
+              <div class="font-medium text-indigo-600">
+                <strong>Criado em:</strong>
               </div>
               <div class="pl-4 text-gray-700 mb-2 overflow-x-auto">
                 {{ new Date(link.created_at).toLocaleString('pt-br') }}
@@ -85,9 +93,10 @@ export default {
     const existsNextPage = null
     const allLinks = ref([])
     const page = ref(1)
+    const clicks = ref({})
 
-    const getAllLinksFromAPI = () => {
-      axios.get(`http://localhost:8080/api?page=${page.value}`).then((res) => {
+    const getAllLinksFromAPI = async () => {
+      await axios.get(`http://localhost:8080/api?page=${page.value}`).then((res) => {
         console.log(res.data)
         if (res.data.data.length === 0) {
           isLastPage.value = true
@@ -96,13 +105,19 @@ export default {
         if (res.data.data.next_page_url) {
           existsNextPage.value = res.data.data.next_page_url
         }
+        res.data.data.forEach((link) => {
+          if (!clicks.value[link.hash]) {
+            clicks.value[link.hash] = 0
+          }
+        })
         allLinks.value = res.data.data
       })
     }
 
-    const redirect = (hash) => {
+    const redirect = async (hash) => {
       event.preventDefault()
-      axios.get(`http://localhost:8080/api${hash}`).then((res) => {
+      await axios.get(`http://localhost:8080/api${hash}`).then(async (res) => {
+        await countShortedLinkClicks(hash)
         console.log(res.data)
         window.open(res.data['original_url'], '_blank')
       })
@@ -126,15 +141,28 @@ export default {
       getAllLinksFromAPI()
     }
 
+    const countShortedLinkClicks = async (hash) => {
+      await axios
+        .post(`http://localhost:8080/api/click`, {
+          url_hash: hash
+        })
+        .then((res) => {
+          console.log(res.data[0]['clicks'])
+          clicks.value[hash] = res.data[0]['clicks']
+        })
+    }
+
     return {
       allLinks,
       page,
       isLastPage,
       existsNextPage,
+      clicks,
       nextPage,
       redirect,
       previousPage,
       firstPage,
+      countShortedLinkClicks,
       getAllLinksFromAPI
     }
   },
