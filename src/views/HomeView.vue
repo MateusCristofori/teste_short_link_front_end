@@ -97,7 +97,6 @@ export default {
 
     const getAllLinksFromAPI = async () => {
       await axios.get(`http://localhost:8080/api?page=${page.value}`).then((res) => {
-        console.log(res.data)
         if (res.data.data.length === 0) {
           isLastPage.value = true
           return toast.error('Não existem mais registros!')
@@ -118,7 +117,6 @@ export default {
       event.preventDefault()
       await axios.get(`http://localhost:8080/api${hash}`).then(async (res) => {
         await countShortedLinkClicks(hash)
-        console.log(res.data)
         window.open(res.data['original_url'], '_blank')
       })
     }
@@ -147,7 +145,6 @@ export default {
           url_hash: hash
         })
         .then((res) => {
-          console.log(res.data[0]['clicks'])
           clicks.value[hash] = res.data[0]['clicks']
         })
     }
